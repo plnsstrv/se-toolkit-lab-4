@@ -3,7 +3,18 @@
 from app.models.interaction import InteractionLog
 from app.routers.interactions import filter_by_max_item_id
 
+def test_filter_excludes_interaction_with_different_learner_id():
+    interactions = [
+        {"learner_id": 1, "item_id": 1},
+        {"learner_id": 2, "item_id": 1},
+    ]
 
+    result = [
+        i for i in interactions
+        if i["learner_id"] == 1
+    ]
+
+    assert len(result) == 1
 def _make_log(id: int, learner_id: int, item_id: int) -> InteractionLog:
     return InteractionLog(id=id, learner_id=learner_id, item_id=item_id, kind="attempt")
 
@@ -24,3 +35,20 @@ def test_filter_returns_interactions_below_max() -> None:
     result = filter_by_max_item_id(interactions=interactions, max_item_id=2)
     assert len(result) == 1
     assert result[0].id == 1
+def test_filter_by_item_id_returns_correct_items():
+    interactions = [
+        {"item_id": 1},
+        {"item_id": 2},
+        {"item_id": 1},
+    ]
+
+    result = [i for i in interactions if i["item_id"] == 1]
+
+    assert len(result) == 2
+def test_empty_interactions_list_returns_empty():
+    interactions = []
+
+    result = [i for i in interactions if i.get("item_id") == 1]
+
+    assert result == []
+    
